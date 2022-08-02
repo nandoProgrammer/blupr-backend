@@ -6,10 +6,12 @@ class authController{
         return res.status(200).send("Hello");
     }
 
-    static async login(req, res){
-        let user = '123', password = '123';
+    static async auth(req, res){
+        let user = 'email@email.com', password = '12345*';
         try{
-            if(req.body.user === user && req.body.password === password){
+            if(req.body.user === user && 
+               req.body.password === password){
+                
                 const token = jwt.sign({
                     user: user,
                 }, 
@@ -21,9 +23,11 @@ class authController{
                 return res.status(200).json({
                     "token": token
                 });
+
             }else{
-                return res.status(200).send("Falha na auteticação")
+                return res.status(404).send("Not Found");
             }
+            
         }catch(error){
            return res.status(500).json(error.message)
         }
