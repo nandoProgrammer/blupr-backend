@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import authController from '../controllers/authController';
-const login = require('../middleware/login');
 
 const router = Router();
 

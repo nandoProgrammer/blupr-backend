@@ -1,4 +1,4 @@
-//const database = require('../models');
+const database = require('../models');
 import jwt from 'jsonwebtoken';
 
 class authController{
@@ -7,13 +7,18 @@ class authController{
     }
 
     static async auth(req, res){
-        let user = 'email@email.com', password = '12345*';
+        const { username, password } = req.body;
+      
         try{
-            if(req.body.user === user && 
-               req.body.password === password){
+
+            const user = await database.Users.findOne({ 
+                where: { email: username, password: password } 
+            });
+
+            if(user){
                 
                 const token = jwt.sign({
-                    user: user,
+                    user,
                 }, 
                 process.env.JWT_KEY,
                 {
