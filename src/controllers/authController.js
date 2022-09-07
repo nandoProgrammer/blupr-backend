@@ -7,12 +7,12 @@ class authController{
     }
 
     static async auth(req, res){
-        const { username, password } = req.body;
+        const { email, password } = req.body;
       
         try{
 
             const user = await database.Users.findOne({ 
-                where: { email: username, password: password } 
+                where: { email: email, password: password } 
             });
 
             if(user){
