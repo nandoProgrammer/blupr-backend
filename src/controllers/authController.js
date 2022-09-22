@@ -1,6 +1,8 @@
 const database = require('../models');
 import jwt from 'jsonwebtoken';
 
+const bcrypt = require('bcrypt');
+
 class authController{
     static async hello(req, res){
         return res.status(200).send("Hello");
@@ -12,10 +14,10 @@ class authController{
         try{
 
             const user = await database.Users.findOne({ 
-                where: { email: email, password: password } 
+                where: { email: email } 
             });
 
-            if(user){
+            if(user.email && bcrypt.compareSync(password, user.password)){
                 
                 const token = jwt.sign({
                     user,
