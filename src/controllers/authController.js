@@ -2,7 +2,6 @@ const database = require('../models');
 import jwt from 'jsonwebtoken';
 
 const bcrypt = require('bcrypt');
-
 class authController{
     static async hello(req, res){
         return res.status(200).send("Hello");
@@ -38,7 +37,6 @@ class authController{
         }catch(error){
            return res.status(500).json(error.message)
         }
-        
     }
 }
 
