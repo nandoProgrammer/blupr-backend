@@ -17,10 +17,12 @@ class authController{
                 where: { email: email } 
             });
 
-            if(user.email && bcrypt.compareSync(password, user.password)){
+            if(user.email && 
+              bcrypt.compareSync(password, user.password)){
                 
-                const token = jwt.sign({
-                    user,
+                const token = jwt.sign(
+                {
+                  user,
                 }, 
                 process.env.JWT_KEY,
                 {

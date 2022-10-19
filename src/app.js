@@ -6,6 +6,6 @@ dotenv.config();
 const app = express();
 routes(app);
 
-const port = 3000;
+const port = process.env.PORT;
 
 app.listen(port);
