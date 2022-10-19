@@ -27,9 +27,10 @@ class userController{
             if(!emailExists){
                 const newUserCreate = await database.Users.create(newUser);
                 return res.status(201).json(newUserCreate);
-            }else{
-                return res.status(400).send("Email já existe");
             }
+
+            return res.status(400).send("Email já existe");
+            
         }catch(error){
             return res.status(500).json(error.message);
         }
@@ -46,9 +47,10 @@ class userController{
             if(emailExists){
                 //const resetRequest = await database.ResetPasswords.create(newUser);
                 return res.status(200).send(emailExists);
-            }else{
-                return res.status(400).send("Email não encontrado");
             }
+
+            return res.status(404).send("Email não encontrado");
+
         }catch(error){
             return res.status(500).json(error.message);
         }
