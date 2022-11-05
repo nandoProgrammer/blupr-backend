@@ -9,36 +9,40 @@ class authController{
 
     static async auth(req, res){
         const { email, password } = req.body;
-      
-        try{
 
+        if(!email || !password){
+            return res.status(400).send('email e password não podem ser vazios');
+        }
+
+        try{
+            
             const user = await database.Users.findOne({ 
                 where: { email: email } 
             });
-
-            if(user.email && 
-              bcrypt.compareSync(password, user.password)){
+    
+                if(user.email && 
+                  bcrypt.compareSync(password, user.password)){
+                    
+                    const token = jwt.sign(
+                    {
+                      user,
+                    }, 
+                    process.env.JWT_KEY,
+                    {
+                        expiresIn: "1h"
+                    })
+    
+                    return res.status(200).json({
+                        "token": token
+                    });
+    
+                }else{
+                    return res.status(404).send("Not Found");
+                }
                 
-                const token = jwt.sign(
-                {
-                  user,
-                }, 
-                process.env.JWT_KEY,
-                {
-                    expiresIn: "1h"
-                })
-
-                return res.status(200).json({
-                    "token": token
-                });
-
-            }else{
-                return res.status(404).send("Not Found");
+            }catch(error){
+               return res.status(500).json(error.message)
             }
-            
-        }catch(error){
-           return res.status(500).json(error.message)
-        }
     }
 }
 

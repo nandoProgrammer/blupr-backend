@@ -19,6 +19,7 @@ class userController{
             active: false
         };
 
+
         try{
             const emailExists = await database.Users.findOne({ 
                 where: { email: data.email } 
@@ -37,16 +38,26 @@ class userController{
     }
 
     static async resetPassword(req, res){
-        const email = req.body.email;
-        
+        let uuid = uuidv4();
+        const data = req.body;
+
         try{
+
             const emailExists = await database.Users.findOne({ 
-                where: { email: email } 
+                where: { email: data.email } 
             });
 
             if(emailExists){
-                //const resetRequest = await database.ResetPasswords.create(newUser);
-                return res.status(200).send(emailExists);
+
+                let newRequestReset = {
+                    id: uuid,
+                    uuid: data.uuid,
+                    token: 'uhuh',
+                };
+
+                const resetRequest = await database.ResetPasswords.create(newRequestReset);
+                //enviar email
+                return res.status(200).json({"message": "Request para redefinição de senha criada com sucesso"});
             }
 
             return res.status(404).send("Email não encontrado");
@@ -57,7 +68,33 @@ class userController{
     }
 
     static async newPassword(req, res){
+        const token = req.query.token;
+        const newPassword = req.body.password;
         
+        try{
+
+            const tokenExists = await database.ResetPasswords.findOne({ 
+                where: { token: token } 
+            });
+
+            if(tokenExists){
+                const user = await database.Users.findOne({ 
+                    where: { id: tokenExists.uuid } 
+                });
+
+                user.password = newPassword;
+                await user.save();
+
+                await database.ResetPasswords.destroy({ 
+                    where: { token: token } 
+                });
+            }
+
+            return res.status(200).send('Senha redefinida com sucesso');
+
+        }catch(error){
+            return res.status(500).json(error.message);
+        }
     }
 }
 
