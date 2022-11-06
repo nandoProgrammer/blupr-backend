@@ -3,6 +3,28 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
 class userController{
+    static async getUser(req, res){
+
+        const id = req.params.idUser;
+
+        const user = await database.Users.findOne({ 
+            where: { id: id } 
+        });
+
+        if(!user){
+           return res.status(404).send('Usuário não existe');
+        }
+
+        const userData = {
+            "image": user.image,
+            "name": user.name,
+            "sex": user.sex,
+            "dateBirth": user.dateBirth
+        }
+
+        return res.status(200).json(userData);
+    }
+
     static async createUser(req, res){
        
         let uuid = uuidv4();
@@ -92,6 +114,38 @@ class userController{
 
             return res.status(200).send('Senha redefinida com sucesso');
 
+        }catch(error){
+            return res.status(500).json(error.message);
+        }
+    }
+
+    static async updateUser(req, res){
+        const id = req.params.idUser;
+        const data = req.body;
+
+        const userUpdate = {
+            "name": data.name,
+            "date-birth": data.dateBirth,
+            "sex": data.sex
+        }
+
+        
+        try{
+            const user = await database.Users.findOne({ 
+                where: { id: id } 
+            });
+
+            if(!user){
+              return res.status(404).send('Usuário não existe');
+            }
+
+            user.name = userUpdate.name;
+            user.sex = userUpdate.sex;
+            user.dateBirth = userUpdate.dateBirth;
+
+            await user.save();
+
+            return res.status(200).json(user);
         }catch(error){
             return res.status(500).json(error.message);
         }
