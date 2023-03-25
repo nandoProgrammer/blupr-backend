@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 const bcrypt = require('bcrypt');
 class authController{
+    
     static async hello(req, res){
         return res.status(200).send("Hello");
     }
@@ -19,6 +20,10 @@ class authController{
             const user = await database.Users.findOne({ 
                 where: { email: email } 
             });
+
+            if(!user){
+                return res.status(404).send("Not Found");
+            }
     
                 if(user.email && 
                   bcrypt.compareSync(password, user.password)){
@@ -33,7 +38,8 @@ class authController{
                     })
     
                     return res.status(200).json({
-                        "token": token
+                        "token": token,
+                        "id": user.id
                     });
     
                 }else{

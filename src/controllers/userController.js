@@ -5,10 +5,11 @@ import bcrypt from 'bcryptjs';
 class userController{
     static async getUser(req, res){
 
-        const id = req.params.idUser;
+        const { idUser } = req.params;
+        let uuid = uuidv4();
 
         const user = await database.Users.findOne({ 
-            where: { id: id } 
+            where: { id: idUser } 
         });
 
         if(!user){
@@ -16,6 +17,7 @@ class userController{
         }
 
         const userData = {
+            "id": uuid,
             "image": user.image,
             "name": user.name,
             "sex": user.sex,
@@ -72,8 +74,7 @@ class userController{
             if(emailExists){
 
                 let newRequestReset = {
-                    id: uuid,
-                    uuid: data.uuid,
+                    id: data.uuid,
                     token: 'uhuh',
                 };
 
@@ -100,12 +101,12 @@ class userController{
             });
 
             if(tokenExists){
-                const user = await database.Users.findOne({ 
-                    where: { id: tokenExists.uuid } 
+                const user = await database.ResetPasswords.findOne({ 
+                    where: { id: tokenExists.id } 
                 });
 
                 user.password = newPassword;
-                await user.save();
+                await user.save(user.password);
 
                 await database.ResetPasswords.destroy({ 
                     where: { token: token } 
@@ -120,7 +121,7 @@ class userController{
     }
 
     static async updateUser(req, res){
-        const id = req.params.idUser;
+        const { idUser }  = req.params;
         const data = req.body;
 
         const userUpdate = {
@@ -132,7 +133,7 @@ class userController{
         
         try{
             const user = await database.Users.findOne({ 
-                where: { id: id } 
+                where: { id } 
             });
 
             if(!user){
@@ -144,8 +145,8 @@ class userController{
             user.dateBirth = userUpdate.dateBirth;
 
             await user.save();
-
             return res.status(200).json(user);
+            
         }catch(error){
             return res.status(500).json(error.message);
         }

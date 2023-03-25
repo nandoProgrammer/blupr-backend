@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ResetPasswords.init({
-    uuid: DataTypes.STRING,
     token: DataTypes.STRING
   }, {
     sequelize,

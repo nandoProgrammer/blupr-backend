@@ -1,16 +1,14 @@
 const database = require('../models');
 import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcryptjs';
-import posts from '../models/posts';
 
 class postController{
 
     static async getPosts(req, res){  
-        const id = req.params.idUser;
+        const { idUser } = req.params;
 
         try{
             const posts = await database.Posts.findAll({ 
-                where: { user_uuid: id } 
+                where: { user_uuid: idUser } 
             });
             return res.status(200).json(posts);
         }catch(error){
@@ -18,15 +16,28 @@ class postController{
         }
     }
 
+    static async getPost(req, res){  
+        const { idPost } = req.params;
+
+        try{
+            const post = await database.Posts.findOne({ 
+                where: { id: idPost } 
+            });
+            return res.status(200).json(post);
+        }catch(error){
+            return res.status(500).json(error.message);
+        }
+    }
+
     static async createPost(req, res){
-        const id = req.params.idUser;
+        const { idUser } = req.params;
         const data = req.body;
 
         let uuid = uuidv4();
 
         const newPost = {
-          "uuid": uuid,
-          "user_uuid": id,
+          "id": uuid,
+          "user_uuid": idUser,
           "content": data.content,
           "likes": 0
         };
@@ -39,15 +50,14 @@ class postController{
         }
 
     }
-    
 
     static async updatePost(req, res){
-       const id = req.params.idUser;
+       const { idPost } = req.params;
        const data = req.body;
 
        try{
           const post = await database.Posts.findOne({ 
-            where: { uuid: id } 
+            where: { id: idPost } 
           });
 
           post.content = req.body.content;
@@ -61,12 +71,12 @@ class postController{
     }
 
     static async likePost(req, res){
-       const id = req.params.idUser;
+       const { idUser } = req.params;
 
        try{
 
         const post = await database.Posts.findOne({ 
-            where: { uuid: id } 
+            where: { id } 
         });
 
         if(post){
@@ -82,12 +92,12 @@ class postController{
     }
 
     static async unlikePost(req, res){
-        const id = req.params.idUser;
+        const { idUser } = req.params;
  
         try{
  
          const post = await database.Posts.findOne({ 
-             where: { uuid: id } 
+             where: { id } 
          });
  
          if(post){
@@ -100,21 +110,44 @@ class postController{
         }catch(error){
            return res.status(500).json(error.message);
         }
-     }
+    }
 
-     /*static async createCommentPost(req, res){
+    static async getCommentPost(req, res){
+       const { idPost } = req.params;
+       
+       try {
+
+         const posts = await database.Comments.findAll({
+           where: { post_uuid: idPost } 
+         });
+
+         return res.status(200).json(posts);
+
+       }catch(error){
+          return res.status(500).json(error.message);
+       }
+    }
+
+    static async createCommentPost(req, res){
+        const data = req.body;
+        const { idPost, idUser } = req.params;
+
+        let uuid = uuidv4();
 
         try{
+            let newComment = {
+              "id": uuid,
+              "post_uuid": idPost,
+              "content": data.content
+            };
 
-            const post = await database.Posts.create();
+            const post = await database.Comments.create(newComment);
+            return res.status(200).json(post);
            
         }catch(error){
-           return res.status(500).json(error.message);
+            return res.status(500).json(error.message);
         }
-     }*/
-
-
-
+    }
 
 }
 
